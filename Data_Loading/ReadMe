@@ -1,0 +1,1 @@
+This folder has all th scripts used to parse the twitter json files, convert it to csv and load it to neo4j
