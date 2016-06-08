@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="lib/d3.slider.css" />
+<style>
+#slider3 {
+        margin: 20px 0 10px 20px;
+        width: 900px;
+      }
+body{
+	width:1200px;
+	
+}
+svg text{
+	font-size:12px;
+}
+rect{
+	shape-rendering:crispEdges;
+}
+</style>
+<body>
+<div id="Title">
+  <h1 style="color:steelblue;">
+     Top_10 topics with User support groups
+  </h1> 
+<div align = "left" id="Date_Value" >
+    <input id= "Date_t"type="text" style="height:20px; width:100px; text-align:center; font-size:14px" name="Date" value='All'>
+</div>
+</div>
+<div id="slider3"></div>
+<div id="graph"> </div>
+<script src="lib/d3.js"></script>
+<script src="lib/d3.slider.js"></script>
+<script src="lib/underscore.js"></script>
+<script src="js/biPartite.js"></script>
+<script>
+var partitions = ['2015_10_11', '2015_10_12', '2015_10_13', '2015_10_14', '2015_10_15',
+              '2016_1_26', '2016_1_27', '2016_1_28', '2016_1_29', '2016_1_30', '2016_2_2', '2016_2_3', 
+              '2016_2_4', '2016_2_5', '2016_2_6', '2016_2_7', '2016_2_8', '2016_2_9', '2016_2_10',
+              '2016_2_11', '2016_2_12', '2016_2_13', '2016_2_14', '2016_2_15', 
+              '2016_2_23', '2016_2_24', '2016_2_25', '2016_2_26', '2016_2_27', 
+              '2016_3_1', '2016_3_2','2016_3_3', '2016_3_4', '2016_3_5', '2016_3_6', '2016_3_7', 
+              '2016_3_8', '2016_3_9', '2016_3_10', '2016_3_11'];
+var debate_day = ['2015_10_13','2016_1_28','2016_2_4','2016_2_6','2016_2_11','2016_2_13',
+              '2016_2_25','2016_3_3','2016_3_6','2016_3_9']
+
+document.getElementById('Date_t').value = partitions[0];
+d3.csv("data/top_10/results2015_10_11.csv", function (error, data) {
+							var sales_data = [];
+							data.forEach(function(d){
+							     row = [];
+							   
+								     row.push(d['supports_tag']);
+								     row.push(d['topic']);
+								     row.push(d['count']);
+								     sales_data.push(row);
+						
+							});
+
+                            //d3.selectAll("#graph").selectAll("*").remove();
+							var width = 1100, height = 610, margin ={b:0, t:40, l:170, r:50};
+
+							var svg = d3.select("#graph")
+								.append("svg").attr('width',width).attr('height',(height+margin.b+margin.t))
+								.append("g").attr("transform","translate("+ margin.l+","+margin.t+")");
+
+							var data = [ 
+								{data:bP.partData(sales_data,2), id:'SalesAttempts', header:["User group ","Topic", "User Groups and Topics"]},
+								//{data:bP.partData(sales_data,3), id:'Sales', header:["Channel","State", "Sales"]}
+							];
+                            console.log("draw");
+							bP.draw(data, svg);
+							});
+
+d3.select('#slider3')
+            .call(d3.slider()
+            .axis (d3.svg.axis().orient("top").ticks(40)).min(1).max(40).step(1)
+            .on("slide", function(evt, value) {
+                 document.getElementById('Date_t').value = partitions[value -1 ];  
+                            file = 'data/top_10/results' + partitions[value-1]+ '.csv';
+                             switch(partitions[value -1]) {
+		                          case debate_day[0]:
+		                          case debate_day[2]:
+		                          case debate_day[4]:
+		                          case debate_day[8]:
+		                          case debate_day[9]:
+		                          
+		                            console.log(value)
+		                            document.getElementById('Date_t').style.backgroundColor = '#386cb0'
+		                            break;
+		                          case debate_day[1]:
+		                          case debate_day[3]:
+		                          case debate_day[5]:
+		                          case debate_day[6]:
+		                          case debate_day[7]:
+		                          
+		                            console.log(value)
+		                            document.getElementById('Date_t').style.backgroundColor = '#e34a33'
+		                            break;
+		                          default:
+                                    document.getElementById('Date_t').style.backgroundColor = 'white';
+                                }
+							//console.log(file) 
+							d3.csv(file, function (error, data) {
+							var sales_data = [];
+							data.forEach(function(d){
+							     row = [];
+								     row.push(d['supports_tag']);
+								     row.push(d['topic']);
+								     row.push(d['count']);
+								     sales_data.push(row);
+
+							  
+							});
+
+                            d3.selectAll("#graph").selectAll("*").remove();
+							var width = 1100, height = 610, margin ={b:0, t:40, l:170, r:50};
+
+							var svg = d3.select("#graph")
+								.append("svg").attr('width',width).attr('height',(height+margin.b+margin.t))
+								.append("g").attr("transform","translate("+ margin.l+","+margin.t+")");
+
+							var data = [ 
+								{data:bP.partData(sales_data,2), id:'SalesAttempts', header:["User group ","Topic", "User Groups and Topics"]},
+								//{data:bP.partData(sales_data,3), id:'Sales', header:["Channel","State", "Sales"]}
+							];
+
+							bP.draw(data, svg);
+							});
+						})
+                );
+
+</script>
+</body>
